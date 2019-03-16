@@ -1,0 +1,6 @@
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  data:
+    mongodb:
+      uri: mongodb+srv://cheerio_pk_admin:Rn02wd8X3NFBPuWQ@cheerio-a5eg4.mongodb.net/cheerio_db?retryWrites=true
