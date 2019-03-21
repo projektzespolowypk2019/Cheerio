@@ -1,8 +1,8 @@
-package com.pk.api.repository.spec
+package com.pk.api.repository
 
 import com.pk.api.models.Ingredient
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository
-import org.springframework.data.repository.NoRepositoryBean
+import org.springframework.stereotype.Repository
 
-@NoRepositoryBean
+@Repository
 interface IngredientRepository : ReactiveMongoRepository<Ingredient, String>

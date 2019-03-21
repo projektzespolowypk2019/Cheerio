@@ -14,6 +14,7 @@ class Routing {
             router {
                 ("/ingredients" and accept(MediaType.APPLICATION_JSON_UTF8)).nest {
                     GET("/", handler::getAll)
+                    POST("/", handler::create)
                 }
             }
 }
