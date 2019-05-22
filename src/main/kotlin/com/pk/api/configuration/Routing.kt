@@ -3,6 +3,7 @@ package com.pk.api.configuration
 import com.pk.api.handler.IngredientHandler
 import com.pk.api.handler.RecipeHandler
 import com.pk.api.handler.UnitHandler
+import com.pk.api.handler.UserHandler
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.MediaType
@@ -34,6 +35,15 @@ class Routing {
             router {
                 ("/units" and accept(MediaType.APPLICATION_JSON_UTF8)).nest {
                     GET("/", handler::getAll)
+                    POST("/", handler::create)
+                }
+            }
+
+    @Bean
+    fun userRouter(handler: UserHandler) =
+            router {
+                ("/users" and accept(MediaType.APPLICATION_JSON_UTF8)).nest {
+                    GET("/", handler::login)
                     POST("/", handler::create)
                 }
             }
