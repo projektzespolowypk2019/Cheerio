@@ -1,7 +1,7 @@
 package com.pk.api.handler
 
 import com.pk.api.models.LoginInput
-import com.pk.api.models.User
+import com.pk.api.models.LoginResponse
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
@@ -36,7 +36,7 @@ class UserHandler {
                                 )
                                 .exchange()
                                 .flatMap {
-                                    val user = it.bodyToMono(User::class.java)
+                                    val user = it.bodyToMono(LoginResponse::class.java)
                                     ServerResponse.ok().body(user)
                                 }
                     }
