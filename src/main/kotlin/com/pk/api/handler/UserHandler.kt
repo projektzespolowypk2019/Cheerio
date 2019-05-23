@@ -78,13 +78,9 @@ class UserHandler(private val userRepository: UserRepository) {
                     .exchange()
                     .flatMap { response ->
                         val user: Mono<User> = response.bodyToMono(User::class.java)
-                                .doOnNext { authServiceUser ->
-                                    authServiceUser.id = null
-                                    userRepository.save(authServiceUser).doOnNext { createdUser ->
-                                        authServiceUser.id = createdUser.id
-                                    }
-                                }
-                        ServerResponse.created(URI.create(registerUri)).body(user)
+
+                        ServerResponse.created(URI.create(registerUri))
+                                .body(userRepository.saveAll(user))
                     }
                     .onErrorResume { ServerResponse.badRequest().build() }
 }
