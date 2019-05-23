@@ -8,6 +8,7 @@ import com.pk.api.repository.UserRepository
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.BodyExtractors
 import org.springframework.web.reactive.function.BodyInserters
@@ -15,6 +16,7 @@ import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse
 import org.springframework.web.reactive.function.server.body
 import reactor.core.publisher.Mono
+import reactor.core.publisher.toMono
 import java.net.URI
 
 @Component
@@ -60,27 +62,31 @@ class UserHandler(private val userRepository: UserRepository) {
                     }
 
     fun create(request: ServerRequest): Mono<ServerResponse> =
-            authClient
-                    .post()
-                    .uri(registerUri)
-                    .header(
-                            HttpHeaders.CONTENT_TYPE,
-                            MediaType.APPLICATION_JSON_VALUE
-                    )
-                    .header(
-                            HttpHeaders.AUTHORIZATION,
-                            registerAuthorization
-                    )
-                    .body(BodyInserters.fromPublisher(
-                            request.body(BodyExtractors.toMono(RegisterInput::class.java)),
-                            RegisterInput::class.java
-                    ))
-                    .exchange()
-                    .flatMap { response ->
-                        val user: Mono<User> = response.bodyToMono(User::class.java)
+            request.body(BodyExtractors.toMono(RegisterInput::class.java))
+                    .flatMap { registerInput ->
+                        registerInput.password = BCryptPasswordEncoder().encode(registerInput.password)
+                        authClient
+                                .post()
+                                .uri(registerUri)
+                                .header(
+                                        HttpHeaders.CONTENT_TYPE,
+                                        MediaType.APPLICATION_JSON_VALUE
+                                )
+                                .header(
+                                        HttpHeaders.AUTHORIZATION,
+                                        registerAuthorization
+                                )
+                                .body(BodyInserters.fromPublisher(
+                                        registerInput.toMono(),
+                                        RegisterInput::class.java
+                                ))
+                                .exchange()
+                                .flatMap { response ->
+                                    val user: Mono<User> = response.bodyToMono(User::class.java)
 
-                        ServerResponse.created(URI.create(registerUri))
-                                .body(userRepository.saveAll(user))
+                                    ServerResponse.created(URI.create(registerUri))
+                                            .body(userRepository.saveAll(user))
+                                }
+                                .onErrorResume { ServerResponse.badRequest().build() }
                     }
-                    .onErrorResume { ServerResponse.badRequest().build() }
 }
