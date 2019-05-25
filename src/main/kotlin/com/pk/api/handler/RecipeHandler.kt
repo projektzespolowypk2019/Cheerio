@@ -5,12 +5,14 @@ import com.pk.api.repository.RecipeRepository
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse
+import org.springframework.web.reactive.function.server.ServerResponse.created
 import org.springframework.web.reactive.function.server.ServerResponse.ok
 import org.springframework.web.reactive.function.server.body
 import org.springframework.web.reactive.function.server.bodyToMono
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.publisher.toMono
+import java.net.URI
 
 @Component
 class RecipeHandler(private val recipeRepository: RecipeRepository) {
@@ -24,6 +26,7 @@ class RecipeHandler(private val recipeRepository: RecipeRepository) {
     fun create(request: ServerRequest): Mono<ServerResponse> {
         val recipe = request.bodyToMono<Recipe>()
 
-        return ok().body(recipeRepository.saveAll(recipe).toMono())
+        return created(URI.create(request.path()))
+                .body(recipeRepository.saveAll(recipe).toMono())
     }
 }

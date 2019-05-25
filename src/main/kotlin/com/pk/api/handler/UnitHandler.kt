@@ -10,6 +10,7 @@ import org.springframework.web.reactive.function.server.bodyToMono
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.publisher.toMono
+import java.net.URI
 
 @Component
 class UnitHandler(private val unitRepository: UnitRepository) {
@@ -23,6 +24,7 @@ class UnitHandler(private val unitRepository: UnitRepository) {
     fun create(request: ServerRequest): Mono<ServerResponse> {
         val unit = request.bodyToMono<Unit>()
 
-        return ServerResponse.ok().body(unitRepository.saveAll(unit).toMono())
+        return ServerResponse.created(URI.create(request.path()))
+                .body(unitRepository.saveAll(unit).toMono())
     }
 }

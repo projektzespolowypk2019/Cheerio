@@ -1,6 +1,5 @@
 package com.pk.api.handler
 
-import com.pk.api.models.LoginInput
 import com.pk.api.models.LoginResponse
 import com.pk.api.models.RegisterInput
 import com.pk.api.models.User
@@ -35,30 +34,27 @@ class UserHandler(private val userRepository: UserRepository) {
     val registerAuthorization: String = ""
 
     fun login(request: ServerRequest): Mono<ServerResponse> =
-            request.body(BodyExtractors.toMono(LoginInput::class.java))
-                    .flatMap { input ->
-                        authClient
-                                .post()
-                                .uri {
-                                    it.path(loginUri)
-                                            .queryParam("username", input.nickname)
-                                            .queryParam("password", input.password)
-                                            .queryParam("grant_type", "password")
-                                            .build()
-                                }
-                                .header(
-                                        HttpHeaders.CONTENT_TYPE,
-                                        MediaType.APPLICATION_JSON_VALUE
-                                )
-                                .header(
-                                        HttpHeaders.AUTHORIZATION,
-                                        loginAuthorization
-                                )
-                                .exchange()
-                                .flatMap {
-                                    val user = it.bodyToMono(LoginResponse::class.java)
-                                    ServerResponse.ok().body(user)
-                                }
+            authClient
+                    .post()
+                    .uri {
+                        it.path(loginUri)
+                                .queryParam("username", request.queryParam("nickname").orElse(""))
+                                .queryParam("password", request.queryParam("password").orElse(""))
+                                .queryParam("grant_type", "password")
+                                .build()
+                    }
+                    .header(
+                            HttpHeaders.CONTENT_TYPE,
+                            MediaType.APPLICATION_JSON_VALUE
+                    )
+                    .header(
+                            HttpHeaders.AUTHORIZATION,
+                            loginAuthorization
+                    )
+                    .exchange()
+                    .flatMap {
+                        val user = it.bodyToMono(LoginResponse::class.java)
+                        ServerResponse.ok().body(user)
                     }
 
     fun create(request: ServerRequest): Mono<ServerResponse> =
