@@ -1,0 +1,397 @@
+openapi: 3.0.0
+
+servers:
+  - url: https://kucharekv2.herokuapp.com
+    description: Cheerio server
+info:
+  version: "1.2.0"
+  title: Cheerio API
+  contact:
+    email: cheerio.pk@gmail.com
+  license:
+    name: MIT
+    url: 'https://opensource.org/licenses/MIT'
+tags:
+  - name: Ingredient
+  - name: Recipe
+  - name: Unit
+  - name: User
+
+paths:
+  /ingredients:
+    get:
+      summary: Get all
+      description: Returns list of ingredients.
+      tags:
+        - Ingredient
+      responses:
+        '200':
+          $ref: '#/components/responses/OK_200_IngredientList'
+        '500':
+          $ref: '#/components/responses/INTERNAL_SERVER_ERROR_500'
+        '503':
+          $ref: '#/components/responses/SERVICE_UNAVAILABLE_503'
+
+    post:
+      summary: Add
+      description: Create new ingredient.
+      tags:
+        - Ingredient
+      parameters:
+        - $ref: '#/components/parameters/JSON_Content-Type'
+      requestBody:
+        $ref: '#/components/requestBodies/IngredientRequest'
+      responses:
+        '201':
+          $ref: '#/components/responses/CREATED_201_CreatedIngredient'
+        '500':
+          $ref: '#/components/responses/INTERNAL_SERVER_ERROR_500'
+        '503':
+          $ref: '#/components/responses/SERVICE_UNAVAILABLE_503'
+
+  /recipes:
+    get:
+      summary: Get all
+      description: Returns list of recipes.
+      tags:
+        - Recipe
+      responses:
+        '200':
+          $ref: '#/components/responses/OK_200_RecipeList'
+        '500':
+          $ref: '#/components/responses/INTERNAL_SERVER_ERROR_500'
+        '503':
+          $ref: '#/components/responses/SERVICE_UNAVAILABLE_503'
+
+    post:
+      summary: Add
+      description: Create new recipe.
+      tags:
+        - Recipe
+      parameters:
+        - $ref: '#/components/parameters/JSON_Content-Type'
+      requestBody:
+        $ref: '#/components/requestBodies/RecipeRequest'
+      responses:
+        '201':
+          $ref: '#/components/responses/CREATED_201_Recipe'
+        '500':
+          $ref: '#/components/responses/INTERNAL_SERVER_ERROR_500'
+        '503':
+          $ref: '#/components/responses/SERVICE_UNAVAILABLE_503'
+
+  /units:
+    get:
+      summary: Get all
+      description: Returns list of units.
+      tags:
+        - Unit
+      responses:
+        '200':
+          $ref: '#/components/responses/OK_200_UnitList'
+        '500':
+          $ref: '#/components/responses/INTERNAL_SERVER_ERROR_500'
+        '503':
+          $ref: '#/components/responses/SERVICE_UNAVAILABLE_503'
+
+    post:
+      summary: Add
+      description: Create new unit.
+      tags:
+        - Unit
+      parameters:
+        - $ref: '#/components/parameters/JSON_Content-Type'
+      requestBody:
+        $ref: '#/components/requestBodies/UnitRequest'
+      responses:
+        '201':
+          $ref: '#/components/responses/CREATED_201_CreatedUnit'
+        '500':
+          $ref: '#/components/responses/INTERNAL_SERVER_ERROR_500'
+        '503':
+          $ref: '#/components/responses/SERVICE_UNAVAILABLE_503'
+
+  /users:
+    get:
+      summary: Authenticate
+      description: Return user details and access token.
+      tags:
+        - User
+      parameters:
+        - $ref: '#/components/parameters/UserNickname'
+        - $ref: '#/components/parameters/UserPassword'
+      responses:
+        '200':
+          $ref: '#/components/responses/OK_200_LoginResponse'
+        '500':
+          $ref: '#/components/responses/INTERNAL_SERVER_ERROR_500'
+        '503':
+          $ref: '#/components/responses/SERVICE_UNAVAILABLE_503'
+
+    post:
+      summary: Add
+      description: Create new user account
+      tags:
+        - User
+      parameters:
+        - $ref: '#/components/parameters/JSON_Content-Type'
+      requestBody:
+        $ref: '#/components/requestBodies/UserRegisterRequest'
+      responses:
+        '201':
+          $ref: '#/components/responses/CREATED_201_UserResponse'
+        '500':
+          $ref: '#/components/responses/INTERNAL_SERVER_ERROR_500'
+        '503':
+          $ref: '#/components/responses/SERVICE_UNAVAILABLE_503'
+
+
+components:
+  schemas:
+
+    Ingredient:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ingredient ID.
+        name:
+          type: string
+          description: The ingredient name.
+
+    Recipe:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The recipe ID.
+        name:
+          type: string
+          description: The recipe name.
+        author:
+          type: string
+          description: The recipe author.
+        description:
+          type: string
+          description: Recipe description.
+        recipeIngredientSet:
+          $ref: '#/components/schemas/RecipeIngredient'
+
+    RecipeIngredient:
+      type: object
+      properties:
+        ingredientId:
+          type: string
+          description: The ingredient ID.
+        quantity:
+          type: number
+          description: The amount of the ingredient.
+        unitId:
+          type: string
+          description: The unit ID.
+
+    Unit:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unit ID.
+        name:
+          type: string
+          description: The unit name.
+
+    LoginResponse:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Unique user code.
+        nickname:
+          type: string
+          description: The user nickname.
+        token_type:
+          type: string
+          description: The type of access token.
+        access_token:
+          type: string
+          description: Access token.
+
+    RegisterInput:
+      type: object
+      properties:
+        email:
+          type: string
+          description: The user email.
+        password:
+          type: string
+          description: The user password.
+        nickname:
+          type: string
+          description: The user nickname.
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The user ID.
+        code:
+          type: string
+          description: Unique user code.
+        email:
+          type: string
+          description: The user email.
+        nickname:
+          type: string
+          description: The user nickname.
+
+
+  requestBodies:
+
+    IngredientRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                description: The ingredient name.
+
+    RecipeRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                description: The recipe name.
+              author:
+                type: string
+                description: The recipe author.
+              description:
+                type: string
+                description: Recipe description.
+              recipeIngredientSet:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RecipeIngredient'
+
+    UnitRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                description: The unit name.
+
+    UserRegisterRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RegisterInput'
+
+
+  parameters:
+    JSON_Content-Type:
+      name: Content-Type
+      in: header
+      description:  Is used to indicate the media type of the resource.
+      required: true
+      example: "application/json"
+      schema:
+        type: string
+
+    UserNickname:
+      in: query
+      required: true
+      description: User nickname or email.
+      name: nickname
+      schema:
+        type: string
+
+    UserPassword:
+      in: query
+      required: true
+      description: User password.
+      name: password
+      schema:
+        type: string
+
+
+  responses:
+
+    OK_200_IngredientList:
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/Ingredient'
+
+    CREATED_201_CreatedIngredient:
+      description: Created
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Ingredient'
+
+    OK_200_RecipeList:
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/Recipe'
+
+    CREATED_201_Recipe:
+      description: Created
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Recipe'
+
+    OK_200_UnitList:
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/Unit'
+
+    CREATED_201_CreatedUnit:
+      description: Created
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Unit'
+
+    OK_200_LoginResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LoginResponse'
+
+    CREATED_201_UserResponse:
+      description: Created
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/User'
+
+    INTERNAL_SERVER_ERROR_500:
+      description: Internal Server Error
+
+    SERVICE_UNAVAILABLE_503:
+      description: Service Unavailable
